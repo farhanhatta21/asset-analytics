@@ -70,12 +70,26 @@
 
     <!-- FOOTER -->
     <div class="border-t border-slate-800/60 p-3 bg-[#090e1a]/40">
-        <form action="{{ route('logout') }}" method="POST">
+        <form
+            id="logoutForm"
+            action="{{ route('logout') }}"
+            method="POST"
+            onsubmit="event.preventDefault(); const btn = document.getElementById('logoutBtn'); if(btn.dataset.submitted === 'true') { return false; } btn.dataset.submitted = 'true'; btn.disabled = true; btn.classList.add('opacity-75', 'cursor-not-allowed'); document.getElementById('logoutText').classList.add('hidden'); document.getElementById('logoutLoading').classList.remove('hidden'); setTimeout(() => { document.getElementById('logoutForm').submit(); }, 600);">
             @csrf
-            <button type="submit" class="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-600/90 hover:text-white font-medium transition duration-150">
-                <i data-lucide="log-out" class="w-5 h-5"></i>
-                <span class="text-sm">
-                    Logout
+            <button
+                id="logoutBtn"
+                type="submit"
+                class="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-600/90 hover:text-white font-medium transition duration-150 disabled:opacity-75 disabled:cursor-not-allowed">
+                <span id="logoutText" class="inline-flex items-center gap-3 w-full">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                    <span class="text-sm">Logout</span>
+                </span>
+                <span id="logoutLoading" class="hidden inline-flex items-center gap-2.5 text-sm text-red-300">
+                    <svg class="animate-spin h-4 w-4 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Mengeluarkan...</span>
                 </span>
             </button>
         </form>
