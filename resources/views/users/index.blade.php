@@ -132,10 +132,10 @@
                                     Edit
                                 </a>
 
-                                <form action="{{ route('users.destroy', $user) }}" method="POST">
+                                <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="if(!confirm('Hapus user ini?')) return false; const btn = this.querySelector('button'); if(btn.dataset.submitted === 'true') return false; btn.dataset.submitted = 'true'; btn.disabled = true; btn.classList.add('opacity-75', 'cursor-not-allowed'); return true;">
                                     @csrf
                                     @method('DELETE')
-                                    <button onclick="return confirm('Hapus user ini?')" class="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
+                                    <button type="submit" class="flex items-center gap-1 bg-red-50 hover:bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-xs font-medium transition">
                                         <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                         Delete
                                     </button>

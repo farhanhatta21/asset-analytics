@@ -12,8 +12,10 @@
 <div class="max-w-3xl mx-auto">
     <div class="bg-white rounded-xl border shadow-sm p-6">
         <form
+            id="editUserForm"
             action="{{ route('users.update',$user) }}"
-            method="POST">
+            method="POST"
+            onsubmit="event.preventDefault(); const btn = document.getElementById('updateUserBtn'); if(btn.dataset.submitted === 'true') { return false; } btn.dataset.submitted = 'true'; btn.disabled = true; btn.classList.add('opacity-75', 'cursor-not-allowed'); document.getElementById('updateUserText').classList.add('hidden'); document.getElementById('updateUserLoading').classList.remove('hidden'); setTimeout(() => { document.getElementById('editUserForm').submit(); }, 500);">
 
             @csrf
             @method('PUT')
@@ -26,7 +28,7 @@
                         Nama
                     </label>
 
-                    <input type="text" name="name" value="{{ old('name',$user->name) }}" class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <input type="text" name="name" value="{{ old('name',$user->name) }}" required class="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     @error('name')
                         <p class="text-red-500 text-sm mt-1">
                             {{ $message }}
@@ -41,7 +43,7 @@
                         Email
                     </label>
 
-                    <input type="email" name="email" value="{{ old('email',$user->email) }}" class="w-full border rounded-xl px-4 py-3 mt-2">
+                    <input type="email" name="email" value="{{ old('email',$user->email) }}" required class="w-full border rounded-xl px-4 py-3 mt-2">
                     @error('email')
                         <p class="text-red-500 text-sm mt-1">
                             {{ $message }}
@@ -120,8 +122,17 @@
                 </a>
 
                 <button
-                    class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition">
-                    Update User
+                    id="updateUserBtn"
+                    type="submit"
+                    class="flex items-center justify-center min-w-[130px] px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white transition disabled:opacity-75 disabled:cursor-not-allowed">
+                    <span id="updateUserText">Update User</span>
+                    <span id="updateUserLoading" class="hidden inline-flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Menyimpan...</span>
+                    </span>
                 </button>
 
             </div>

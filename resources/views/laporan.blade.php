@@ -230,9 +230,11 @@
 
                 <!-- EXCEL -->
                 <button
+                    type="submit"
                     formaction="{{ route('export.excel') }}"
                     formmethod="GET"
-                    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl">
+                    onclick="const btn = this; if(btn.dataset.clicked === 'true') { return false; } btn.dataset.clicked = 'true'; btn.classList.add('opacity-75', 'cursor-not-allowed'); setTimeout(() => { btn.dataset.clicked = 'false'; btn.classList.remove('opacity-75', 'cursor-not-allowed'); }, 3000);"
+                    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl transition">
 
                     <i class="fa-solid fa-file-excel"></i>
 
@@ -242,9 +244,11 @@
 
                 <!-- PDF -->
                 <button
+                    type="submit"
                     formaction="{{ route('export.pdf') }}"
                     formmethod="GET"
-                    class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl">
+                    onclick="const btn = this; if(btn.dataset.clicked === 'true') { return false; } btn.dataset.clicked = 'true'; btn.classList.add('opacity-75', 'cursor-not-allowed'); setTimeout(() => { btn.dataset.clicked = 'false'; btn.classList.remove('opacity-75', 'cursor-not-allowed'); }, 3000);"
+                    class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl transition">
 
                     <i class="fa-solid fa-file-pdf"></i>
 
