@@ -225,6 +225,21 @@ class ExportController extends Controller
 
     public function exportPDF(Request $request, AnalysisService $service, MonitoringExportService $monitoringService)
     {
+        // VALIDASI RENTANG PERIODE
+        if (!$request->filled('periode_awal') || !$request->filled('periode_akhir')) {
+            return back()->with(
+                'error',
+                'Silakan pilih rentang periode laporan (Periode Dari dan Periode Sampai) terlebih dahulu sebelum melakukan export PDF.'
+            );
+        }
+
+        if ($request->periode_awal > $request->periode_akhir) {
+            return back()->with(
+                'error',
+                'Periode awal ("Dari") tidak boleh lebih besar dari periode akhir ("Sampai").'
+            );
+        }
+
         //DATA MONITORING
         $rows = $monitoringService
             ->getMonitoringData($request->all());
@@ -232,7 +247,7 @@ class ExportController extends Controller
         if ($rows->isEmpty()) {
             return back()->with(
                 'error',
-                'Tidak ada data aset yang ditemukan untuk filter yang dipilih.'
+                'Tidak ada data aset yang ditemukan untuk filter periode yang dipilih.'
             );
         }
 
@@ -257,21 +272,10 @@ class ExportController extends Controller
             'PT Pelabuhan Indonesia (Persero) Regional 4';
 
         // FILTER PERIODE
-        $periode = 'Semua Periode';
-
-        if (
-            $request->filled('periode_awal') &&
-            $request->filled('periode_akhir')
-        ) {
-            $periode =
-                $request->periode_awal .
-                ' s.d. ' .
-                $request->periode_akhir;
-        } elseif ($request->filled('periode_awal')) {
-            $periode = 'Mulai ' . $request->periode_awal;
-        } elseif ($request->filled('periode_akhir')) {
-            $periode = 'Sampai ' . $request->periode_akhir;
-        }
+        $periode =
+            $request->periode_awal .
+            ' s.d. ' .
+            $request->periode_akhir;
 
         $groupAlat =
             $request->alat ?: 'Seluruh Kelompok Alat';
@@ -309,6 +313,21 @@ class ExportController extends Controller
 
     public function exportExcel(Request $request)
     {
+        // VALIDASI RENTANG PERIODE
+        if (!$request->filled('periode_awal') || !$request->filled('periode_akhir')) {
+            return back()->with(
+                'error',
+                'Silakan pilih rentang periode laporan (Periode Dari dan Periode Sampai) terlebih dahulu sebelum melakukan export Excel.'
+            );
+        }
+
+        if ($request->periode_awal > $request->periode_akhir) {
+            return back()->with(
+                'error',
+                'Periode awal ("Dari") tidak boleh lebih besar dari periode akhir ("Sampai").'
+            );
+        }
+
         return Excel::download(
             new AssetExport(
                 $request->all()

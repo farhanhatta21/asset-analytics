@@ -35,7 +35,20 @@
     </div>
     @endif
 
-    <form method="GET"
+    <!-- Dynamic Client Error Notification -->
+    <div id="jsErrorAlert" class="hidden rounded-2xl bg-amber-50 border border-amber-300 p-4 text-amber-800 text-sm flex items-start gap-3 shadow-xs transition-all">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-amber-600 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <div class="flex-1">
+            <p class="font-bold text-amber-900">Perhatian</p>
+            <p id="jsErrorMessage" class="text-xs text-amber-800 mt-0.5"></p>
+        </div>
+        <button type="button" onclick="document.getElementById('jsErrorAlert').classList.add('hidden')" class="text-amber-600 hover:text-amber-800 text-xs font-bold px-2 py-1">✕</button>
+    </div>
+
+    <form id="laporanForm"
+          method="GET"
           action="/laporan"
           class="bg-white border rounded-2xl shadow-sm p-6 space-y-6">
 
@@ -57,15 +70,18 @@
 
 
             <!-- PERIODE -->
-            <div class="space-y-4">
+            <div id="periodeSection" class="space-y-4">
 
                 <div>
-                    <h3 class="font-semibold text-slate-700">
-                        Periode Laporan
-                    </h3>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-semibold text-slate-700">
+                            Periode Laporan
+                        </h3>
+                        <span class="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">Wajib Dipilih</span>
+                    </div>
 
-                    <p class="text-sm text-slate-500">
-                        Pilih rentang periode data.
+                    <p class="text-sm text-slate-500 mt-0.5">
+                        Pilih rentang periode awal dan akhir data untuk diexport.
                     </p>
                 </div>
 
@@ -75,26 +91,30 @@
                     <div>
 
                         <label class="block text-sm font-medium mb-2">
-                            Dari
+                            Dari <span class="text-red-500">*</span>
                         </label>
 
                         <input type="month"
+                               id="periode_awal"
                                name="periode_awal"
                                value="{{ request('periode_awal') }}"
-                               class="w-full border border-slate-200 rounded-xl px-4 py-3">
+                               oninput="this.classList.remove('border-red-500', 'ring-2', 'ring-red-200'); document.getElementById('jsErrorAlert').classList.add('hidden');"
+                               class="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition">
 
                     </div>
 
                     <div>
 
                         <label class="block text-sm font-medium mb-2">
-                            Sampai
+                            Sampai <span class="text-red-500">*</span>
                         </label>
 
                         <input type="month"
+                               id="periode_akhir"
                                name="periode_akhir"
                                value="{{ request('periode_akhir') }}"
-                               class="w-full border border-slate-200 rounded-xl px-4 py-3">
+                               oninput="this.classList.remove('border-red-500', 'ring-2', 'ring-red-200'); document.getElementById('jsErrorAlert').classList.add('hidden');"
+                               class="w-full border border-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition">
 
                     </div>
 
@@ -222,7 +242,7 @@
 
             <!-- LEFT -->
             <div class="text-sm text-slate-500">
-                Export laporan sesuai filter yang dipilih.
+                Pilih periode awal & akhir, lalu download laporan.
             </div>
 
             <!-- RIGHT -->
@@ -230,29 +250,27 @@
 
                 <!-- EXCEL -->
                 <button
-                    type="submit"
-                    formaction="{{ route('export.excel') }}"
-                    formmethod="GET"
-                    onclick="const btn = this; if(btn.dataset.clicked === 'true') { return false; } btn.dataset.clicked = 'true'; btn.classList.add('opacity-75', 'cursor-not-allowed'); setTimeout(() => { btn.dataset.clicked = 'false'; btn.classList.remove('opacity-75', 'cursor-not-allowed'); }, 3000);"
-                    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl transition">
+                    type="button"
+                    id="btnExportExcel"
+                    onclick="handleExportClick('{{ route('export.excel') }}', this)"
+                    class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl transition shadow-sm hover:shadow active:scale-[0.99] disabled:opacity-75 disabled:cursor-not-allowed">
 
                     <i class="fa-solid fa-file-excel"></i>
 
-                    Export Excel
+                    <span>Export Excel</span>
 
                 </button>
 
                 <!-- PDF -->
                 <button
-                    type="submit"
-                    formaction="{{ route('export.pdf') }}"
-                    formmethod="GET"
-                    onclick="const btn = this; if(btn.dataset.clicked === 'true') { return false; } btn.dataset.clicked = 'true'; btn.classList.add('opacity-75', 'cursor-not-allowed'); setTimeout(() => { btn.dataset.clicked = 'false'; btn.classList.remove('opacity-75', 'cursor-not-allowed'); }, 3000);"
-                    class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl transition">
+                    type="button"
+                    id="btnExportPdf"
+                    onclick="handleExportClick('{{ route('export.pdf') }}', this)"
+                    class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-xl transition shadow-sm hover:shadow active:scale-[0.99] disabled:opacity-75 disabled:cursor-not-allowed">
 
                     <i class="fa-solid fa-file-pdf"></i>
 
-                    Export PDF
+                    <span>Export PDF</span>
 
                 </button>
 
@@ -265,5 +283,68 @@
 </div>
 
 </div>
+
+<script>
+    function handleExportClick(actionUrl, btnElement) {
+        const awal = document.getElementById('periode_awal');
+        const akhir = document.getElementById('periode_akhir');
+        const alertBox = document.getElementById('jsErrorAlert');
+        const alertMsg = document.getElementById('jsErrorMessage');
+        const form = document.getElementById('laporanForm');
+
+        // Reset error styling
+        awal.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+        akhir.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+
+        // 1. Cek apakah periode_awal atau periode_akhir kosong
+        if (!awal.value || !akhir.value) {
+            alertMsg.textContent = 'Silakan pilih rentang periode laporan (Periode "Dari" dan "Sampai") terlebih dahulu sebelum melakukan export.';
+            alertBox.classList.remove('hidden');
+
+            if (!awal.value) awal.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+            if (!akhir.value) akhir.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+
+            document.getElementById('periodeSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (!awal.value) awal.focus();
+            else akhir.focus();
+            return false;
+        }
+
+        // 2. Cek apakah periode_awal > periode_akhir
+        if (awal.value > akhir.value) {
+            alertMsg.textContent = 'Periode awal ("Dari") tidak boleh lebih besar dari periode akhir ("Sampai"). Silakan perbaiki tanggal periode.';
+            alertBox.classList.remove('hidden');
+
+            awal.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+            akhir.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+
+            document.getElementById('periodeSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            awal.focus();
+            return false;
+        }
+
+        // Sembunyikan alert jika valid
+        alertBox.classList.add('hidden');
+
+        // Cegah spam click / double submit
+        if (btnElement.dataset.clicked === 'true') {
+            return false;
+        }
+        btnElement.dataset.clicked = 'true';
+        btnElement.disabled = true;
+        btnElement.classList.add('opacity-75', 'cursor-not-allowed');
+
+        setTimeout(() => {
+            btnElement.dataset.clicked = 'false';
+            btnElement.disabled = false;
+            btnElement.classList.remove('opacity-75', 'cursor-not-allowed');
+        }, 3500);
+
+        // Submit form ke action export yang dituju
+        form.action = actionUrl;
+        form.method = 'GET';
+        form.submit();
+    }
+</script>
 
 @endsection
